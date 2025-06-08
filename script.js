@@ -18,6 +18,7 @@ messageInput.addEventListener('keypress', (event) => {
 });
 
 // 화면에 메시지를 표시하는 함수
+/**
 function displayMessage(text, sender) {
     const messageDiv = document.createElement('div');
     messageDiv.classList.add('message', `${sender}-message`);
@@ -28,6 +29,43 @@ function displayMessage(text, sender) {
     messageDiv.appendChild(paragraph);
     chatHistory.appendChild(messageDiv);
     
+    // 스크롤을 항상 맨 아래로 이동
+    chatHistory.scrollTop = chatHistory.scrollHeight;
+}
+**/
+
+// 기존 displayMessage 함수를 삭제하고 아래 함수로 교체합니다.
+
+function displayMessage(text, sender) {
+    const msgDiv = document.createElement('div');
+    msgDiv.classList.add('message', `${sender}-message`);
+
+    let messageContentHtml = '';
+
+    if (sender === 'user') {
+        // 사용자 메시지는 간단하게 p 태그로 감쌉니다.
+        messageContentHtml = `<div class="message-content"><p>${text}</p></div>`;
+    } else {
+        // 봇 메시지는 Gemini 아이콘과 함께 구성합니다.
+        // marked.parse()를 사용하여 마크다운 텍스트를 HTML로 변환합니다.
+        const convertedHtml = marked.parse(text);
+        messageContentHtml = `
+            <img src="https://www.gstatic.com/lamda/images/gemini_sparkle_v002_d4735304ff6292a690345.svg" alt="bot-icon" class="bot-icon">
+            <div class="message-content">${convertedHtml}</div>
+        `;
+    }
+
+    msgDiv.innerHTML = messageContentHtml;
+    chatHistory.appendChild(msgDiv);
+    
+    // ⭐️ [추가] 봇 메시지인 경우, 새로 추가된 코드 블록에 하이라이팅을 적용합니다.
+    if (sender === 'bot') {
+        const codeBlocks = msgDiv.querySelectorAll('pre code');
+        codeBlocks.forEach((block) => {
+            hljs.highlightElement(block);
+        });
+    }
+
     // 스크롤을 항상 맨 아래로 이동
     chatHistory.scrollTop = chatHistory.scrollHeight;
 }
